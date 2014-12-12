@@ -1,0 +1,58 @@
+---
+- name: Install libselinux-python
+  yum: name=libselinux-python state=latest
+
+- name: Create sda webserver user
+  user: name={{sdawebserver_user}} comment="SDA WebServer User" shell=/bin/bash 
+
+- name: Create Java install path
+  file: state=directory path={{java_install_path}} owner=root group=root
+
+- name: Download Oracle Java 7
+  command: "wget -O {{java_archive}} --no-check-certificate --no-cookies --header 'Cookie: oraclelicense=accept-securebackup-cookie' {{java_download_url}} creates={{java_archive}}"
+
+- name: Unpack Java archive
+  command: "tar zxf {{java_archive}} -C {{java_install_path}} creates={{java_name}}"
+
+- name: Download Java security policy jars
+  command: "wget -O {{java_policy_archive}} --no-check-certificate --no-cookies --header 'Cookie: oraclelicense=accept-securebackup-cookie' {{java_policy_download_url}} creates={{java_policy_archive}}"
+
+- name: Unpack Java Policy archive
+  unarchive: src={{java_policy_archive}} dest={{java_install_path}} copy=no creates={{java_policy_name}}
+
+- name: Set symlink for local_policy.jar
+  file: state=link path="{{java_policy_install_path}}/local_policy.jar" src="{{java_policy_name}}/local_policy.jar" force=yes
+   
+- name: Set symlink for US_export_policy.jar
+  file: state=link path="{{java_policy_install_path}}/US_export_policy.jar" src="{{java_policy_name}}/US_export_policy.jar" force=yes
+
+- name: Fix ownership
+  file: state=directory path={{java_name}} owner=root group=root recurse=yes
+
+- name: Set symlink for latest Java
+  file: state=link path={{java_symlink}} src={{java_name}}
+
+- name: Set symlink for default Java
+  file: state=link path={{java_default}} src={{java_symlink}}
+
+- name: Install Apache PHP mod_ssl and mod_auth_kerb
+  yum: name={{item}} state=latest
+  with_items:
+    - httpd
+    - mod_ssl
+    - mod_auth_kerb
+    - php
+
+- name: Setup HTTP firewall rule
+  lineinfile: dest={{iptable_rule_file}} state=present
+              regexp="^-A INPUT -p tcp -m state --state NEW -m tcp --dport {{item}} -j ACCEPT$"
+              line="-A INPUT -p tcp -m state --state NEW -m tcp --dport {{item}} -j ACCEPT"
+              insertbefore="^-A INPUT -j REJECT .*$"
+  with_items:
+    - 80
+    - 443
+  notify:
+    - restart iptables 
+
+- name: Enable HTTP server onboot
+  service: name=httpd enabled=yes

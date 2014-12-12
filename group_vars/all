@@ -1,0 +1,25 @@
+---
+sdawebserver_user: apache_tomcat
+sdawebserver_home: /home/apache_tomcat
+iptable_rule_file: /etc/sysconfig/iptables
+
+java_download_url: http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jdk-7u71-linux-x64.tar.gz
+java_install_path: /usr/java
+java_archive: "{{java_install_path}}/jdk-7u71-linux-x64.tar.gz"
+java_name: "{{java_install_path}}/jdk1.7.0_71"
+java_symlink: "{{java_install_path}}/latest"
+java_default: "{{java_install_path}}/default"
+
+java_policy_download_url: http://download.oracle.com/otn-pub/java/jce/7/UnlimitedJCEPolicyJDK7.zip
+java_policy_archive: "{{java_install_path}}/UnlimitedJCEPolicyJDK7.zip"
+java_policy_name: "{{java_install_path}}/UnlimitedJCEPolicy"
+java_policy_install_path: "{{java_name}}/jre/lib/security"
+
+httpd_conf_file: /etc/httpd/conf/httpd.conf
+mod_auth_kerb_conf_file: /etc/httpd/conf.d/auth_kerb.conf
+mod_ssl_conf_file: /etc/httpd/conf.d/ssl.conf
+httpd_document_root: /var/www/html
+
+kerberos_ticket_home: "{{sdawebserver_home}}/shared"
+
+sdawar_download_url: https://iu.box.com/shared/static/e1jc8950l5pm231z0ehf.war
