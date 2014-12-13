@@ -1,0 +1,24 @@
+---
+- name: Check if SDA_Balancer_Config already exists in httpd.conf
+  shell: "grep SDA_Balancer_Config {{httpd_conf_file}} | wc -l"
+  register: httpd_configured
+
+- name: Update httpd.conf Step 1
+  lineinfile: dest={{httpd_conf_file}} state=present
+              line="\n#SDA_Balancer_Config\nProxyPass / balancer://mycluster/ stickysession=PHPSESSIONID\n<Proxy balancer://mycluster>"
+  when: httpd_configured.stdout == "0"
+
+- name: Update httpd.conf Step 2
+  lineinfile: dest={{httpd_conf_file}} state=present
+              line="  BalancerMember http://{{item}}"
+              insertafter="^<Proxy balancer://mycluster>"
+  with_items:
+    - "{{groups['webserver']}}"
+  when: httpd_configured.stdout == "0"
+
+- name: Update httpd.conf Step 3
+  lineinfile: dest={{httpd_conf_file}} state=present
+              line="</Proxy>"
+  when: httpd_configured.stdout == "0"
+  notify:
+    - restart httpd

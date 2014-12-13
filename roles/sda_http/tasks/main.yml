@@ -1,18 +1,34 @@
 ---
+- name: Check if SDA_Server_Config already exists in httpd.conf
+  shell: "grep SDA_Server_Config {{httpd_conf_file}} | wc -l"
+  register: httpd_configured
+
 - name: Update httpd.conf 
   lineinfile: dest={{httpd_conf_file}} state=present backup=yes
-              regexp="^<VirtualHost *:80>\n\s*Redirect permanent\s*/\s*https://{{inventory_hostname}}/ \n^</VirtualHost>"
-              line="<VirtualHost *:80>\n Redirect permanent / https://{{inventory_hostname}}/ \n</VirtualHost>"
+              line="\n#SDA_Server_Config\n<VirtualHost *:80>\n Redirect permanent / https://{{inventory_hostname}}/ \n</VirtualHost>"
+  when: httpd_configured.stdout == "0"
+  notify:
+    - restart httpd
 
-#- name: Update auth_kerb.conf
-#  lineinfile: dest={{mod_auth_kerb_conf_file}} state=present backup=yes
-#              regexp="<Location />\n SSLRequireSSL \n AuthType Kerberos \n AuthName \"IU Network ID\" \n KrbMethodNegotiate Off \n KrbAuthRealms ADS.IU.EDU \n KrbSaveCredentials On \n Krb5KeyTab /etc/httpd/conf/http.keytab \n require valid-user \n</Location>"
-#              line="<Location />\n SSLRequireSSL \n AuthType Kerberos \n AuthName \"IU Network ID\" \n KrbMethodNegotiate Off \n KrbAuthRealms ADS.IU.EDU \n KrbSaveCredentials On \n Krb5KeyTab /etc/httpd/conf/http.keytab \n require valid-user \n</Location>\n"
+- name: Check if SDA_Server_Config already exists in auth_kerb.conf
+  shell: "grep SDA_Server_Config {{mod_auth_kerb_conf_file}} | wc -l"
+  register: auth_kerb_configured
 
-#- name: Update ssl.conf
-#  lineinfile: dest={{mod_ssl_conf_file}} state=present backup=yes
-#              regexp="SSLProxyEngine on \nProxyPass     /sda ajp://localhost:8009/sda\nProxyPassReverse /sda ajp://localhost:8009/sda\n"
-#              line="SSLProxyEngine on \nProxyPass     /sda ajp://localhost:8009/sda\nProxyPassReverse /sda ajp://localhost:8009/sda\n"
-#              insertbefore="^</VirtualHost>"
-#  notify:
-#    - restart httpd
+- name: Update auth_kerb.conf
+  lineinfile: dest={{mod_auth_kerb_conf_file}} state=present backup=yes
+              line="\n#SDA_Server_Config\n<Location />\n SSLRequireSSL \n AuthType Kerberos \n AuthName \"IU Network ID\" \n KrbMethodNegotiate Off \n KrbAuthRealms ADS.IU.EDU \n KrbSaveCredentials On \n Krb5KeyTab /etc/httpd/conf/http.keytab \n require valid-user \n</Location>\n"
+  when: auth_kerb_configured.stdout == "0"
+  notify:
+    - restart httpd
+
+- name: Check if SDA_Server_Config already exists in ssl.conf
+  shell: "grep SDA_Server_Config {{mod_ssl_conf_file}} | wc -l"
+  register: ssl_configured
+
+- name: Update ssl.conf
+  lineinfile: dest={{mod_ssl_conf_file}} state=present backup=yes
+              line="\n#SDA_Server_Config\nSSLProxyEngine on \nProxyPass     /sda ajp://localhost:8009/sda\nProxyPassReverse /sda ajp://localhost:8009/sda\n"
+              insertbefore="^</VirtualHost>"
+  when: ssl_configured.stdout == "0"
+  notify:
+    - restart httpd
