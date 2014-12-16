@@ -1,0 +1,28 @@
+---
+- name: Copy over index.php and error.html
+  template: src={{item}} dest="{{httpd_document_root}}/{{item}}" owner=apache group=apache mode=0644
+  with_items: 
+    - index.php
+    - error.html
+
+- name: Create Kerberos Ticket Home
+  file: state=directory path={{kerberos_ticket_home}} owner={{sdawebserver_user}} group=apache mode=0775
+
+- name: Update index.php
+  replace: dest="{{httpd_document_root}}/index.php" 
+           regexp="KERBEROS_TICKET_HOME"
+           replace="{{kerberos_ticket_home}}"
+
+- name: Remove old deployment if exists
+  file: path="{{tomcat_home}}/webapps/sda" state=absent
+
+- name: Download SDA war
+  get_url: url={{sdawar_download_url}} dest={{sdawar_archive}} force=yes
+
+- name: Wait for SDA war is deployed
+  wait_for: path={{sda_kerb_conf}} 
+
+- name: Update sda kerb.conf
+  replace: dest={{sda_kerb_conf}}
+           regexp="kerb.ticket.location = .*"
+           replace="kerb.ticket.location = {{kerberos_ticket_home}}"

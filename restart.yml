@@ -1,0 +1,20 @@
+---
+- hosts: webserver
+  remote_user: root
+  tasks:
+  - name: Stop Tomcat
+    environment:
+      JAVA_HOME: "{{java_default}}"
+    sudo: yes
+    sudo_user: "{{sdawebserver_user}}"
+    command: "{{tomcat_home}}/bin/catalina.sh stop"
+
+  - name: Start Tomcat
+    environment:
+      JAVA_HOME: "{{java_default}}"
+    sudo: yes
+    sudo_user: "{{sdawebserver_user}}"
+    command: "nohup {{tomcat_home}}/bin/catalina.sh start"
+
+  - name: Restart HTTP
+    service: name=httpd state=restarted

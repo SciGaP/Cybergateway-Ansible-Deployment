@@ -5,6 +5,9 @@
 - name: Create sda webserver user
   user: name={{sdawebserver_user}} comment="SDA WebServer User" shell=/bin/bash 
 
+- name: Set sda webserver home directory permissions
+  file: path={{sdawebserver_home}} mode=0755
+
 - name: Create Java install path
   file: state=directory path={{java_install_path}} owner=root group=root
 

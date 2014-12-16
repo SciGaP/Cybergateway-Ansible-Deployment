@@ -1,11 +1,13 @@
 ---
-#- hosts: webserver
-#  remote_user: root
-#  roles:
-  #- common
-  #- sda_http
-
-- hosts: balancer
+- hosts: webserver
   remote_user: root
   roles:
-   - balancer   
+   - common
+   - sda_http
+   - sda_tomcat
+   - sda_deploy
+
+#- hosts: balancer
+#  remote_user: root
+#  roles:
+#   - balancer   

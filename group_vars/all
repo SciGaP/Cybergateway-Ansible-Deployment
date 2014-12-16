@@ -1,6 +1,7 @@
 ---
 sdawebserver_user: apache_tomcat
 sdawebserver_home: /home/apache_tomcat
+kerberos_ticket_home: "{{sdawebserver_home}}/shared"
 iptable_rule_file: /etc/sysconfig/iptables
 
 java_download_url: http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jdk-7u71-linux-x64.tar.gz
@@ -20,6 +21,11 @@ mod_auth_kerb_conf_file: /etc/httpd/conf.d/auth_kerb.conf
 mod_ssl_conf_file: /etc/httpd/conf.d/ssl.conf
 httpd_document_root: /var/www/html
 
-kerberos_ticket_home: "{{sdawebserver_home}}/shared"
+tomcat_download_url: http://mirrors.advancedhosters.com/apache/tomcat/tomcat-7/v7.0.57/bin/apache-tomcat-7.0.57.tar.gz
+tomcat_archive: "{{sdawebserver_home}}/apache-tomcat-7.0.57.tar.gz"
+tomcat_home: "{{sdawebserver_home}}/apache-tomcat-7.0.57"
+tomcat_server_conf: "{{tomcat_home}}/conf/server.xml"
 
 sdawar_download_url: https://iu.box.com/shared/static/e1jc8950l5pm231z0ehf.war
+sdawar_archive: "{{tomcat_home}}/webapps/sda.war"
+sda_kerb_conf: "{{tomcat_home}}/webapps/sda/WEB-INF/classes/kerb.properties"
