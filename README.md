@@ -17,3 +17,7 @@ Roles:
    - balancer: configure HTTPD conf file on load balancer. 
    - sda_tomcat: install, configure and startup Tomcat server.  
    - sda_deploy: deploy SDA software, including index.php and error.html templates.  
+
+group_vars/all:
+   - Update "sdawar_download_url" as needed. 
+   - Update "sdawebserver_user" and "kerberos_ticket_home" as desired.
