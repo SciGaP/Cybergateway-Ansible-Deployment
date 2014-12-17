@@ -23,6 +23,6 @@
   wait_for: path={{sda_kerb_conf}} 
 
 - name: Update sda kerb.conf
-  replace: dest={{sda_kerb_conf}}
+  replace: dest={{sda_kerb_conf}} 
            regexp="kerb.ticket.location = .*"
            replace="kerb.ticket.location = {{kerberos_ticket_home}}"
