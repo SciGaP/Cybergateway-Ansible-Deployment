@@ -27,7 +27,7 @@
 
 - name: Update ssl.conf
   lineinfile: dest={{mod_ssl_conf_file}} state=present backup=yes
-              line="\n#SDA_Server_Config\nSSLProxyEngine on \nProxyPass     /sda ajp://localhost:8009/sda\nProxyPassReverse /sda ajp://localhost:8009/sda\n"
+              line="\n#SDA_Server_Config\nSSLProxyEngine on \nProxyPass     /sda ajp://localhost:8009/sda\nProxyPassReverse /sda ajp://localhost:8009/sda\nProxyTimeout 3000\n"
               insertbefore="^</VirtualHost>"
   when: ssl_configured.stdout == "0"
   notify:
